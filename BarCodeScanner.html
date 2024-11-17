@@ -1,4 +1,4 @@
-n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
+n_13n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
 <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.20/dist/dbr.js"></script>
 <script type="text/javascript" src="https://unpkg.com/@zxing/browser@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detection@latest/dist/barcode-detector.umd.js"></script>
@@ -23,7 +23,7 @@ n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
         await BarcodeDetectorPolyfill.initDBR();
         window.BarcodeDetector = BarcodeDetectorPolyfill;
     }    
-    const barcodeDetector = new BarcodeDetector({formats: ['unknown']});
+    const barcodeDetector = new BarcodeDetector({formats: ['ean_13','qr_code']});
     window.setInterval(async () => {
       const barcodes = await barcodeDetector.detect(videoEl);
       if (barcodes.length <= 0) return;
