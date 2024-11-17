@@ -1,4 +1,4 @@
-n_13n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
+<video id="stream" style="width: 100vw; height: 100vh;"/>
 <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.20/dist/dbr.js"></script>
 <script type="text/javascript" src="https://unpkg.com/@zxing/browser@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detection@latest/dist/barcode-detector.umd.js"></script>
@@ -16,14 +16,25 @@ n_13n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
     videoEl.srcObject = stream;
     alert('v3');
     await videoEl.play();
-    if (!("BarcodeDetector" in window)) {
+    const barcodeSuported = ("BarcodeDetector" in window);
+    if (!barcodeSuported) {
      BarcodeDetectorPolyfill.engine = "DBR"; // options: DBR and ZXing.
         //initialize the Dynamsoft Barcode Reader with a license
         BarcodeDetectorPolyfill.setDBRLicense("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==");
         await BarcodeDetectorPolyfill.initDBR();
         window.BarcodeDetector = BarcodeDetectorPolyfill;
     }    
-    const barcodeDetector = new BarcodeDetector({formats: ['ean_13','qr_code']});
+    //const barcodeDetector = new BarcodeDetector({formats: ['ean_13','qr_code']});
+    let barcodeDetector = new BarcodeDetector();
+    //alert(await barcodeDetector.getSupportedFormats());
+    if (barcodeSuported)
+    {
+      barcodeDetector.formats = await barcodeDetector.getSupportedFormats();
+    }
+    else
+    {
+      barcodeDetector.formats = ['unknown'];
+    }
     window.setInterval(async () => {
       const barcodes = await barcodeDetector.detect(videoEl);
       if (barcodes.length <= 0) return;
