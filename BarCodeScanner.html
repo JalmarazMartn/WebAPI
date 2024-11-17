@@ -14,7 +14,7 @@
     });
     const videoEl = document.querySelector("#stream");
     videoEl.srcObject = stream;
-    alert('v5');
+    alert('v6');
     await videoEl.play();
     const barcodeSuported = ("BarcodeDetector" in window);
     if (!barcodeSuported) {
@@ -26,10 +26,10 @@
     }    
     //const barcodeDetector = new BarcodeDetector({formats: ['ean_13','qr_code']});
     let barcodeDetector = new BarcodeDetector();
-    alert(await barcodeDetector.getSupportedFormats());
+    //alert(await barcodeDetector.getSupportedFormats());
     if (barcodeSuported)
     {
-      barcodeDetector.formats = await barcodeDetector.getSupportedFormats();
+      //barcodeDetector.formats = await barcodeDetector.getSupportedFormats();
     }
     else
     {
