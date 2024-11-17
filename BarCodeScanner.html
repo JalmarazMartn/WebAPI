@@ -27,7 +27,7 @@ n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
       const barcodes = await barcodeDetector.detect(videoEl);
       if (barcodes.length <= 0) return;
       alert(barcodes.map(barcode => barcode.rawValue));
-      alert(barcodes.map(barcode => barcode.format));
+      //alert(barcodes.map(barcode => barcode.format));
     }, 1000)
     })();
 </script>
