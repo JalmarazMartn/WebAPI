@@ -14,7 +14,7 @@ n_13n_13<video id="stream" style="width: 100vw; height: 100vh;"/>
     });
     const videoEl = document.querySelector("#stream");
     videoEl.srcObject = stream;
-    alert('v2');
+    alert('v3');
     await videoEl.play();
     if (!("BarcodeDetector" in window)) {
      BarcodeDetectorPolyfill.engine = "DBR"; // options: DBR and ZXing.
