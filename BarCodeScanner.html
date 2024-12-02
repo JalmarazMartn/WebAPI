@@ -24,7 +24,7 @@
 
     #barcodeTableContainer {
       /* Container for the table (for scrolling) */
-      width: 25%;
+      width: 30%;
       /* Table container takes half the width */
       overflow-y: auto;
       /* Enable vertical scrolling if table is too long */
@@ -59,6 +59,7 @@
       /* Indicate it's clickable */
       border-radius: 5px;
       /* Optional: Rounded corners */
+      width: 25%;
     }
   </style>
 </head>
@@ -73,8 +74,7 @@
       <table id="barcodeTable">
         <thead> <!-- Add a thead section for headers -->
           <tr>
-            <th>Raw Value</th>
-            <th>Format</th>
+            <th>Reading</th>
           </tr>
         </thead>
         <tbody> <!-- Add a tbody section for data rows -->
@@ -119,8 +119,9 @@
         playBeep();
         //document.getElementById('rawValue').textContent  = barcodes.map(barcode => barcode.rawValue);
         //document.getElementById('format').textContent  = barcodes.map(barcode => barcode.format);
-        const row = table.insertRow();
+        let row = table.insertRow();
         const rawValueCell = row.insertCell();
+        row = table.insertRow();
         const formatCell = row.insertCell();
         rawValueCell.textContent = barcodes.map(barcode => barcode.rawValue);
         formatCell.textContent = barcodes.map(barcode => barcode.format);
