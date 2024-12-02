@@ -17,14 +17,9 @@
       /* Make container take full width */
     }
 
-    #stream {
-      width: 50%;
-      /* Video takes half the width */
-    }
-
     #barcodeTableContainer {
       /* Container for the table (for scrolling) */
-      width: 30%;
+      width: 50%;
       /* Table container takes half the width */
       overflow-y: auto;
       /* Enable vertical scrolling if table is too long */
@@ -59,29 +54,32 @@
       /* Indicate it's clickable */
       border-radius: 5px;
       /* Optional: Rounded corners */
-      width: 25%;
+      height: 20vh;  /* Adjust as needed */
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="buttons"> <button onclick="scanBarcode()">Scan Barcode</button><br><br><br>
-      <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button><br><br><br>
-      <button onclick="clearTable()">Clear Table</button>
+  <div style="display: flex; flex-direction: column; height: 100vh; overflow-y: auto;">
+    <video id="stream" style="height: 50%; width: 50%;"></video>
+    <div class="container">
+      <div class="buttons"> <button onclick="scanBarcode()">Scan Barcode</button><br><br><br>
+        <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button><br><br><br>
+        <button onclick="clearTable()">Clear Table</button>
+      </div>
+      <div id="barcodeTableContainer">
+        <table id="barcodeTable">
+          <thead> <!-- Add a thead section for headers -->
+            <tr>
+              <th>Raw Value</th>
+              <th>Format</th>
+            </tr>
+          </thead>
+          <tbody> <!-- Add a tbody section for data rows -->
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div id="barcodeTableContainer">
-      <table id="barcodeTable">
-        <thead> <!-- Add a thead section for headers -->
-          <tr>
-            <th>Reading</th>
-          </tr>
-        </thead>
-        <tbody> <!-- Add a tbody section for data rows -->
-        </tbody>
-      </table>
-    </div>
-    <video id="stream" style="height: 100vh;"></video>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.20/dist/dbr.js"></script>
   <script type="text/javascript" src="https://unpkg.com/@zxing/browser@latest"></script>
@@ -119,9 +117,8 @@
         playBeep();
         //document.getElementById('rawValue').textContent  = barcodes.map(barcode => barcode.rawValue);
         //document.getElementById('format').textContent  = barcodes.map(barcode => barcode.format);
-        let row = table.insertRow();
+        const row = table.insertRow();
         const rawValueCell = row.insertCell();
-        row = table.insertRow();
         const formatCell = row.insertCell();
         rawValueCell.textContent = barcodes.map(barcode => barcode.rawValue);
         formatCell.textContent = barcodes.map(barcode => barcode.format);
