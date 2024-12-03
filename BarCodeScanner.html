@@ -7,79 +7,79 @@
   <style>
     body {
       background-color: black;
-      /* Sets the background color of the body to black */
     }
 
-    .container {
+    .main-container {
       display: flex;
-      /* Enable flexbox layout */
-      width: 100%;
-      /* Make container take full width */
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: hidden; /* Prevent vertical overflow */
     }
+
+    .button-container {
+      display: flex;
+      justify-content: space-around; /* Distribute buttons evenly */
+      padding: 10px; /* Add some padding around buttons */
+    }
+
+    .button-container button {
+      background-color: orange;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
 
     #barcodeTableContainer {
-      /* Container for the table (for scrolling) */
-      width: 70%;
-      /* Table container takes half the width */
-      overflow-y: auto;
-      /* Enable vertical scrolling if table is too long */
+      overflow-y: auto; /* Enable vertical scrolling if table content overflows*/
+      height: 200px; /* Set a fixed height for the table container */
       background-color: black;
+      margin-top: 10px;
     }
 
     #barcodeTable {
       width: 100%;
-      /* Table takes full width of its container */
       border-collapse: collapse;
-      /* Basic table styling */
     }
 
     #barcodeTable th,
     #barcodeTable td {
       border: 1px solid black;
-      /* Basic table styling */
       padding: 8px;
       color: white;
-
     }
 
-    .container .buttons button {
-      /* Target the button elements inside .buttons div */
-      background-color: orange;
-      color: white;
-      padding: 10px 20px;
-      /* Add some padding for better appearance */
-      border: none;
-      /* Remove default button border */
-      cursor: pointer;
-      /* Indicate it's clickable */
-      border-radius: 5px;
-      /* Optional: Rounded corners */
-      height: 100%;
-      width: 30%;
+    #stream {
+      width: 100%;
+      height: calc(100% - 220px); /* Video takes remaining height minus container height*/
+      object-fit: cover; /*Ensure video fills container*/
+      display: none; /* Initially hidden */
     }
+
+
   </style>
 </head>
-
 <body>
-  <div style="display: flex; flex-direction: column; height: 100vh; overflow-y: auto;">
-    <video id="stream" style="height: 50%; width: 50%;"></video>
-    <div class="container">
-      <div class="buttons"> <button onclick="scanBarcode()">Scan Barcode</button><br><br><br>
-        <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button><br><br><br>
-        <button onclick="clearTable()">Clear Table</button>
-      </div>
-      <div id="barcodeTableContainer">
-        <table id="barcodeTable">
-          <thead> <!-- Add a thead section for headers -->
-            <tr>
-              <th>Raw Value</th>
-              <th>Format</th>
-            </tr>
-          </thead>
-          <tbody> <!-- Add a tbody section for data rows -->
-          </tbody>
-        </table>
-      </div>
+  <div class="main-container">
+    <div class="button-container">
+      <button onclick="scanBarcode()">Scan Barcode</button>
+      <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button>
+      <button onclick="clearTable()">Clear Table</button>
+    </div>
+    <video id="stream"></video>
+    <div id="barcodeTableContainer">
+      <table id="barcodeTable">
+        <thead>
+          <tr>
+            <th>Raw Value</th>
+            <th>Format</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.20/dist/dbr.js"></script>
@@ -88,7 +88,7 @@
   <script>
     //document.getElementById('rawValue').style.display = 'block';
     //document.getElementById('format').style.display = 'block';  
-    const table = document.getElementById('barcodeTable');
+    let table = document.getElementById('barcodeTable');
     async function scanBarcode() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -154,14 +154,12 @@
       }, 200);
     }
     function clearTable() {
-      const table = document.getElementById('barcodeTable');
-      const tbody = table.querySelector('tbody'); // Get the tbody element
-
-      if (tbody) {
-        tbody.innerHTML = ''; // Clear the contents of the tbody
-      }
-    }
-  </script>
+   let table = document.getElementById('barcodeTable');
+   let tbody = table.querySelector('tbody'); 
+   var new_tbody = document.createElement('tbody')
+   tbody.parentNode.replaceChild(new_tbody, tbody);
+ } 
+   </script>
 </body>
 
 </html>
