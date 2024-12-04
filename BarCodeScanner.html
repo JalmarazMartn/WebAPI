@@ -53,12 +53,27 @@
 
     #stream {
       width: 100%;      
-      height: 40%;
+      height: 45%;
       object-fit: cover; /*Ensure video fills container*/
       display: none; /* Initially hidden */
     }
+    .textbox-container {
+      display: flex;
+      justify-content: space-around;  /* Or space-between, etc. as needed */
+      margin-bottom: 10px; /* Space between textboxes and table */
+      background-color: black;
+      padding: 10px;
+    }
 
-
+    .textbox-container input {
+      width: 45%; /* Adjust width as needed */
+      padding: 8px;
+      border: 1px solid #555; /* Add a border for better visibility */
+      border-radius: 5px; 
+      font-family: monospace; /* Use a fixed-width font for barcodes */
+      color: white;
+      background-color: #333;
+    }
   </style>
 </head>
 <body>
@@ -69,6 +84,10 @@
       <button onclick="clearTable()">Clear Table</button>
     </div>
     <video id="stream"></video>
+    <div class="textbox-container">
+      <input type="text" id="rawValueTextbox" placeholder="Raw Value" readonly>
+      <input type="text" id="formatTextbox" placeholder="Format" readonly>
+    </div>
     <div id="barcodeTableContainer">
       <table id="barcodeTable">
         <thead>
@@ -123,6 +142,8 @@
         const formatCell = row.insertCell();
         rawValueCell.textContent = barcodes.map(barcode => barcode.rawValue);
         formatCell.textContent = barcodes.map(barcode => barcode.format);
+        rawValueTextbox.value = rawValueCell.textContent;
+        formatTextbox.value = formatCell.textContent;        
       }, 1000)
     }
     function stopScan() {
