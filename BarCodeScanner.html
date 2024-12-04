@@ -30,8 +30,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-
-
     #barcodeTableContainer {
       overflow-y: auto; /* Enable vertical scrolling if table content overflows*/
       height: 200px; /* Set a fixed height for the table container */
@@ -79,8 +77,8 @@
 <body>
   <div class="main-container">
     <div class="button-container">
-      <button onclick="scanBarcode()">Scan Barcode</button>
-      <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button>
+      <button onclick="scanBarcode()" id="startButton">Scan Barcode</button>
+      <button onclick="stopScan()" id="stopButton" style="display: none; background-color: red; color: white;">Stop Scan</button>
       <button onclick="clearTable()">Clear Table</button>
     </div>
     <video id="stream"></video>
@@ -106,8 +104,7 @@
   <script src="https://cdn.jsdelivr.net/npm/barcode-detection@latest/dist/barcode-detector.umd.js"></script>
   <script>
     //document.getElementById('rawValue').style.display = 'block';
-    //document.getElementById('format').style.display = 'block';  
-    let table = document.getElementById('barcodeTable');
+    //document.getElementById('format').style.display = 'block';      
     async function scanBarcode() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -120,6 +117,7 @@
       const videoEl = document.querySelector("#stream");
       document.getElementById('stream').style.display = 'block';
       document.getElementById('stopButton').style.display = 'block';  // Show stop button
+      document.getElementById('startButton').style.display = 'none';  // Show stop button
       videoEl.srcObject = stream;
       await videoEl.play();
       const barcodeSuported = ("BarcodeDetector" in window);
@@ -137,6 +135,7 @@
         playBeep();
         //document.getElementById('rawValue').textContent  = barcodes.map(barcode => barcode.rawValue);
         //document.getElementById('format').textContent  = barcodes.map(barcode => barcode.format);
+        let table = document.getElementById('barcodeTable').getElementsByTagName('tbody')[0]; // Get the tbody
         const row = table.insertRow();
         const rawValueCell = row.insertCell();
         const formatCell = row.insertCell();
@@ -152,6 +151,7 @@
         stream.getTracks().forEach(track => track.stop());
         document.getElementById('stopButton').style.display = 'none';
         document.getElementById('stream').style.display = 'none';
+        document.getElementById('startButton').style.display = 'block';  // Show stop button
         //document.getElementById('rawValue').style.display = 'none';
         //document.getElementById('format').style.display = 'none';
         stream = null; // Reset stream
