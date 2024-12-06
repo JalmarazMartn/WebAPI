@@ -74,32 +74,37 @@
       padding: 10px;
     }
 
-    .textbox-container input {  /* Styles for textboxes */
-    width: 45%;
-    padding: 8px;
-    /* ... other textbox styles */
-}
+    .textbox-container input {
+      /* Styles for textboxes */
+      width: 45%;
+      padding: 8px;
+      /* ... other textbox styles */
+    }
 
 
-.interval-container {  /* Styles for the interval container */
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Align items to the start (lef
+    .interval-container {
+      /* Styles for the interval container */
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      /* Align items to the start (lef
     margin-bottom: 10px;
     background-color: black;
     padding: 5px;
 }
 
 .interval-container label {  /* Styles for the label *outside* textbox styles */
-    color: white;
-    margin-right: 5px;
-}
+      color: white;
+      margin-right: 5px;
+    }
 
-.interval-container input {  /* Styles for the interval textbox */
-    background-color: #333;
-    color: white;
-    width: 80px; /* Reduced width */
-}
+    .interval-container input {
+      /* Styles for the interval textbox */
+      background-color: #333;
+      color: white;
+      width: 80px;
+      /* Reduced width */
+    }
   </style>
 </head>
 
@@ -158,11 +163,11 @@
       canvasEl.height = videoEl.videoHeight;
 
       const intervalTextbox = document.getElementById('intervalTextbox');
-      const interval = parseInt(intervalTextbox.value, 10)*1000;
+      const interval = parseInt(intervalTextbox.value, 10) * 1000;
       const intervalId = setInterval(async () => { // Store the interval ID
-        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-        const imageData = canvasEl.toDataURL('image/jpeg');
-
+        /*ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        const imageData = canvasEl.toDataURL('image/jpeg');*/
+        const imageData = await processImage(videoEl); // Call the image processing function
         try {
           const { data: { text } } = await Tesseract.recognize(imageData, 'eng'); // Wait for OCR
           //alert('OCR Result: ' + text);  // Display the result in the alert
@@ -217,6 +222,34 @@
       document.getElementById('stopButton').style.display = 'none';
       document.getElementById('startButton').style.display = 'block';
       // Add any other cleanup/reset actions here 
+    }
+    async function processImage(videoEl) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const maxWidth = 640; // Or any suitable max width
+      const maxHeight = 480;
+
+      let width = videoEl.videoWidth;
+      let height = videoEl.videoHeight;
+
+      // Calculate scaled dimensions while maintaining aspect ratio
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(videoEl, 0, 0, width, height);
+
+      return canvas.toDataURL('image/jpeg', 0.7); // Returns the resized and compressed image data URL
     }    
   </script>
 </body>
