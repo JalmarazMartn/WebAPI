@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start/Stop Scanner</title>
+  <style>
+    body {
+      background-color: black;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: hidden;
+      /* Prevent vertical overflow */
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-around;
+      /* Distribute buttons evenly */
+      padding: 10px;
+      /* Add some padding around buttons */
+    }
+
+    .button-container button {
+      background-color: orange;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #barcodeTableContainer {
+      overflow-y: auto;
+      /* Enable vertical scrolling if table content overflows*/
+      height: 200px;
+      /* Set a fixed height for the table container */
+      background-color: black;
+      margin-top: 10px;
+    }
+
+    #barcodeTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #barcodeTable th,
+    #barcodeTable td {
+      border: 1px solid black;
+      padding: 8px;
+      color: white;
+    }
+
+    #myVideo {
+      width: 100%;
+      height: 45%;
+      object-fit: cover;
+      /*Ensure video fills container*/
+      display: none;
+      /* Initially hidden */
+    }
+
+    .textbox-container {
+      display: flex;
+      justify-content: space-around;
+      /* Or space-between, etc. as needed */
+      margin-bottom: 10px;
+      /* Space between textboxes and table */
+      background-color: black;
+      padding: 10px;
+    }
+
+    .textbox-container input {
+      width: 45%;
+      /* Adjust width as needed */
+      padding: 8px;
+      border: 1px solid #555;
+      /* Add a border for better visibility */
+      border-radius: 5px;
+      font-family: monospace;
+      /* Use a fixed-width font for barcodes */
+      color: white;
+      background-color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="button-container">
+      <button onclick="scanImage()" id="startButton">Scan Image</button>
+      <button id="stopButton" style="display: none; background-color: red; color: white;">Stop
+        Scan</button>
+      <button onclick="clearTable()">Clear Table</button>
+    </div>
+    <video id="myVideo" width="640" height="480" style="display:none;"></video> <canvas id="myCanvas" width="640" height="480" style="display:none;"></canvas>    <div class="textbox-container">
+      <input type="text" id="rawValueTextbox" placeholder="Raw Value" readonly>
+    </div>
+    <div id="barcodeTableContainer">
+      <table id="barcodeTable">
+        <thead>
+          <tr>
+            <th>Raw Value</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@latest"></script>
+  <script>
+    async function scanImage() {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" } // Or "user" for front-facing camera
+        },
+        audio: false
+      });
+
+      const videoEl = document.getElementById('myVideo'); // Use 'myVideo' – same as in HTML
+      const canvasEl = document.getElementById('myCanvas'); // Get canvas element
+      const ctx = canvasEl.getContext('2d');
+
+      videoEl.srcObject = stream;
+      videoEl.style.display = 'block'; // Show video
+
+      document.getElementById('stopButton').style.display = 'block';
+      document.getElementById('startButton').style.display = 'none';
+
+      await videoEl.play();
+
+      // Set canvas dimensions *after* video has started to ensure correct size
+      canvasEl.width = videoEl.videoWidth;
+      canvasEl.height = videoEl.videoHeight;
+
+
+      const intervalId = setInterval(async () => { // Store the interval ID
+        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        const imageData = canvasEl.toDataURL('image/jpeg');
+
+        try {
+          const { data: { text } } = await Tesseract.recognize(imageData, 'eng'); // Wait for OCR
+          //alert('OCR Result: ' + text);  // Display the result in the alert
+
+          let table = document.getElementById('barcodeTable').getElementsByTagName('tbody')[0];
+          const row = table.insertRow();
+          const rawValueCell = row.insertCell();
+          rawValueCell.textContent = text;
+          document.getElementById('rawValueTextbox').value = text;
+          playBeep();
+
+        } catch (error) {
+          console.error('OCR Error:', error);
+        }
+
+      }, 2000);
+
+      document.getElementById('stopButton').onclick = () => {
+        clearInterval(intervalId); // Stop the interval when 'Stop Scan' is clicked
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+        videoEl.style.display = 'none';
+        canvasEl.style.display = 'none';  // Consider hiding the canvas too
+        document.getElementById('stopButton').style.display = 'none';
+        document.getElementById('startButton').style.display = 'block';
+        // Add any other cleanup/reset actions here
+      };
+    }
+    function playBeep() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+
+      gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+      setTimeout(() => {
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      }, 200);
+    }
+    function clearTable() {
+      let table = document.getElementById('barcodeTable');
+      let tbody = table.querySelector('tbody');
+      var new_tbody = document.createElement('tbody')
+      tbody.parentNode.replaceChild(new_tbody, tbody);
+    } 
+  </script>
+</body>
+
+</html>
