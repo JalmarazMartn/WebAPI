@@ -75,16 +75,35 @@
     }
 
     .textbox-container input {
+      /* Styles for textboxes */
       width: 45%;
-      /* Adjust width as needed */
       padding: 8px;
-      border: 1px solid #555;
-      /* Add a border for better visibility */
-      border-radius: 5px;
-      font-family: monospace;
-      /* Use a fixed-width font for barcodes */
+      /* ... other textbox styles */
+    }
+
+
+    .interval-container {
+      /* Styles for the interval container */
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      /* Align items to the start (lef
+    margin-bottom: 10px;
+    background-color: black;
+    padding: 5px;
+}
+
+.interval-container label {  /* Styles for the label *outside* textbox styles */
       color: white;
+      margin-right: 5px;
+    }
+
+    .interval-container input {
+      /* Styles for the interval textbox */
       background-color: #333;
+      color: white;
+      width: 80px;
+      /* Reduced width */
     }
   </style>
 </head>
@@ -97,7 +116,12 @@
         Scan</button>
       <button onclick="clearTable()">Clear Table</button>
     </div>
-    <video id="myVideo" width="640" height="480" style="display:none;"></video> <canvas id="myCanvas" width="640" height="480" style="display:none;"></canvas>    <div class="textbox-container">
+    <div class="interval-container"> <label for="intervalTextbox">Interval (seconds):</label>
+      <input type="number" id="intervalTextbox" value="2">
+    </div>
+    <video id="myVideo" width="640" height="480" style="display:none;"></video> <canvas id="myCanvas" width="640"
+      height="480" style="display:none;"></canvas>
+    <div class="textbox-container">
       <input type="text" id="rawValueTextbox" placeholder="Raw Value" readonly>
     </div>
     <div id="barcodeTableContainer">
@@ -138,11 +162,12 @@
       canvasEl.width = videoEl.videoWidth;
       canvasEl.height = videoEl.videoHeight;
 
-
+      const intervalTextbox = document.getElementById('intervalTextbox');
+      const interval = parseInt(intervalTextbox.value, 10) * 1000;
       const intervalId = setInterval(async () => { // Store the interval ID
         ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
         const imageData = canvasEl.toDataURL('image/jpeg');
-
+        //const imageData = await processImage(videoEl); // Call the image processing function
         try {
           const { data: { text } } = await Tesseract.recognize(imageData, 'eng'); // Wait for OCR
           //alert('OCR Result: ' + text);  // Display the result in the alert
@@ -151,27 +176,20 @@
           const row = table.insertRow();
           const rawValueCell = row.insertCell();
           rawValueCell.textContent = text;
-          document.getElementById('rawValueTextbox').value = text;
+          document.getElementById('rawValueTextbox').value = 'OCR Result: ' + text;
           playBeep();
 
         } catch (error) {
           console.error('OCR Error:', error);
         }
 
-      }, 2000);
+      }, interval);
 
       document.getElementById('stopButton').onclick = () => {
         clearInterval(intervalId); // Stop the interval when 'Stop Scan' is clicked
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
-        videoEl.style.display = 'none';
-        canvasEl.style.display = 'none';  // Consider hiding the canvas too
-        document.getElementById('stopButton').style.display = 'none';
-        document.getElementById('startButton').style.display = 'block';
-        // Add any other cleanup/reset actions here
+        stopScan(stream, videoEl, canvasEl);
       };
-    }
+    };
     function playBeep() {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioCtx.createOscillator();
@@ -194,7 +212,45 @@
       let tbody = table.querySelector('tbody');
       var new_tbody = document.createElement('tbody')
       tbody.parentNode.replaceChild(new_tbody, tbody);
-    } 
+    }
+    function stopScan(stream, videoEl, canvasEl) {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      videoEl.style.display = 'none';
+      canvasEl.style.display = 'none';  // Consider hiding the canvas too
+      document.getElementById('stopButton').style.display = 'none';
+      document.getElementById('startButton').style.display = 'block';
+      // Add any other cleanup/reset actions here 
+    }
+    /*async function processImage(videoEl) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const maxWidth = 640; // Or any suitable max width
+      const maxHeight = 480;
+
+      let width = videoEl.videoWidth;
+      let height = videoEl.videoHeight;
+
+      // Calculate scaled dimensions while maintaining aspect ratio
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(videoEl, 0, 0, width, height);
+
+      return canvas.toDataURL('image/jpeg', 0.7); // Returns the resized and compressed image data URL
+    }*/    
   </script>
 </body>
 
