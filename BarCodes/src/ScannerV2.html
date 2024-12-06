@@ -30,8 +30,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-
-
     #barcodeTableContainer {
       overflow-y: auto; /* Enable vertical scrolling if table content overflows*/
       height: 200px; /* Set a fixed height for the table container */
@@ -53,23 +51,41 @@
 
     #stream {
       width: 100%;      
-      height: 60%;
-      height: calc(100% - 220px); /* Video takes remaining height minus container height*/
+      height: 45%;
       object-fit: cover; /*Ensure video fills container*/
       display: none; /* Initially hidden */
     }
+    .textbox-container {
+      display: flex;
+      justify-content: space-around;  /* Or space-between, etc. as needed */
+      margin-bottom: 10px; /* Space between textboxes and table */
+      background-color: black;
+      padding: 10px;
+    }
 
-
+    .textbox-container input {
+      width: 45%; /* Adjust width as needed */
+      padding: 8px;
+      border: 1px solid #555; /* Add a border for better visibility */
+      border-radius: 5px; 
+      font-family: monospace; /* Use a fixed-width font for barcodes */
+      color: white;
+      background-color: #333;
+    }
   </style>
 </head>
 <body>
   <div class="main-container">
     <div class="button-container">
-      <button onclick="scanBarcode()">Scan Barcode</button>
-      <button onclick="stopScan()" id="stopButton" style="display: none;">Stop Scan</button>
+      <button onclick="scanBarcode()" id="startButton">Scan Barcode</button>
+      <button onclick="stopScan()" id="stopButton" style="display: none; background-color: red; color: white;">Stop Scan</button>
       <button onclick="clearTable()">Clear Table</button>
     </div>
     <video id="stream"></video>
+    <div class="textbox-container">
+      <input type="text" id="rawValueTextbox" placeholder="Raw Value" readonly>
+      <input type="text" id="formatTextbox" placeholder="Format" readonly>
+    </div>
     <div id="barcodeTableContainer">
       <table id="barcodeTable">
         <thead>
@@ -88,8 +104,7 @@
   <script src="https://cdn.jsdelivr.net/npm/barcode-detection@latest/dist/barcode-detector.umd.js"></script>
   <script>
     //document.getElementById('rawValue').style.display = 'block';
-    //document.getElementById('format').style.display = 'block';  
-    let table = document.getElementById('barcodeTable');
+    //document.getElementById('format').style.display = 'block';      
     async function scanBarcode() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -102,6 +117,7 @@
       const videoEl = document.querySelector("#stream");
       document.getElementById('stream').style.display = 'block';
       document.getElementById('stopButton').style.display = 'block';  // Show stop button
+      document.getElementById('startButton').style.display = 'none';  // Show stop button
       videoEl.srcObject = stream;
       await videoEl.play();
       const barcodeSuported = ("BarcodeDetector" in window);
@@ -119,11 +135,14 @@
         playBeep();
         //document.getElementById('rawValue').textContent  = barcodes.map(barcode => barcode.rawValue);
         //document.getElementById('format').textContent  = barcodes.map(barcode => barcode.format);
+        let table = document.getElementById('barcodeTable').getElementsByTagName('tbody')[0]; // Get the tbody
         const row = table.insertRow();
         const rawValueCell = row.insertCell();
         const formatCell = row.insertCell();
         rawValueCell.textContent = barcodes.map(barcode => barcode.rawValue);
         formatCell.textContent = barcodes.map(barcode => barcode.format);
+        rawValueTextbox.value = rawValueCell.textContent;
+        formatTextbox.value = formatCell.textContent;        
       }, 1000)
     }
     function stopScan() {
@@ -132,6 +151,7 @@
         stream.getTracks().forEach(track => track.stop());
         document.getElementById('stopButton').style.display = 'none';
         document.getElementById('stream').style.display = 'none';
+        document.getElementById('startButton').style.display = 'block';  // Show stop button
         //document.getElementById('rawValue').style.display = 'none';
         //document.getElementById('format').style.display = 'none';
         stream = null; // Reset stream
