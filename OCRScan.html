@@ -3,7 +3,7 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Start/Stop Scanner A Prev</title>
+  <title>Start/Stop Scanner</title>
   <style>
     body {
       background-color: black;
@@ -57,11 +57,18 @@
 
     #myVideo {
       width: 100%;
-      height: 45%;
+      /* Or a fixed width like 640px */
+      aspect-ratio: 4 / 3;
+      /* Or 4 / 3 */
       object-fit: cover;
-      /*Ensure video fills container*/
-      display: none;
-      /* Initially hidden */
+      /* Ensures video fills container while maintaining aspect ratio */
+    }
+
+    #myCanvas {
+      /* Apply the same to the canvas */
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      /* Or 4 / 3 */
     }
 
     .textbox-container {
@@ -165,18 +172,20 @@
       const intervalTextbox = document.getElementById('intervalTextbox');
       const interval = parseInt(intervalTextbox.value, 10) * 1000;
       const intervalId = setInterval(async () => { // Store the interval ID
-        /*ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-        const imageData = canvasEl.toDataURL('image/jpeg');*/
-        const imageData = await processImage(videoEl); // Call the image processing function
+        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        const imageData = canvasEl.toDataURL('image/jpeg');
+        //const imageData = await processImage(videoEl); // Call the image processing function
         try {
-          const { data: { text } } = await Tesseract.recognize(imageData, 'eng'); // Wait for OCR
+          //const scanLang = 'eng';
+          const scanLang = 'spa';
+          const { data: { text } } = await Tesseract.recognize(imageData, scanLang); // Wait for OCR
           //alert('OCR Result: ' + text);  // Display the result in the alert
 
           let table = document.getElementById('barcodeTable').getElementsByTagName('tbody')[0];
           const row = table.insertRow();
           const rawValueCell = row.insertCell();
           rawValueCell.textContent = text;
-          document.getElementById('rawValueTextbox').value = 'OCR Result: ' + text;
+          document.getElementById('rawValueTextbox').value = text;
           playBeep();
 
         } catch (error) {
@@ -223,7 +232,7 @@
       document.getElementById('startButton').style.display = 'block';
       // Add any other cleanup/reset actions here 
     }
-    async function processImage(videoEl) {
+    /*async function processImage(videoEl) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const maxWidth = 640; // Or any suitable max width
@@ -250,7 +259,7 @@
       ctx.drawImage(videoEl, 0, 0, width, height);
 
       return canvas.toDataURL('image/jpeg', 0.7); // Returns the resized and compressed image data URL
-    }    
+    }*/
   </script>
 </body>
 
